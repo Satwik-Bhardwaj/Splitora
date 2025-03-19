@@ -21,7 +21,7 @@ public interface GroupRepository extends JpaRepository<Group, UUID> {
             "e.id, " +
             "g.groupName, " +
             "e.description, " +
-            "e.owner.username, " +
+            "e.payer.username, " +
             "e.amount) " +
             "FROM Expense e " +
             "JOIN e.group g " +

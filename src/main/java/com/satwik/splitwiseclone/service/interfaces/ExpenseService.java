@@ -6,15 +6,15 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ExpenseService {
-    String createNonGroupedExpense(ExpenseDTO expenseDTO);
+    ExpenseDTO createNonGroupedExpense(ExpenseDTO expenseDTO);
 
-    String createGroupedExpense(UUID groupId, ExpenseDTO expenseDTO);
+    ExpenseDTO createGroupedExpense(UUID groupId, ExpenseDTO expenseDTO);
 
     String deleteExpenseById(UUID expenseId);
 
-    String addUserToExpense(UUID expenseId, UUID payerId);
+    String addUserToExpense(UUID expenseId, UUID owerId);
 
-    String removeUserFromExpense(UUID expenseId, UUID payerId);
+    String removeUserFromExpense(UUID expenseId, UUID owerId);
 
     ExpenseDTO findExpenseById(UUID expenseId);
 

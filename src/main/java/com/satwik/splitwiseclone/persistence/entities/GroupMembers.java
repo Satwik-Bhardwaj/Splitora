@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "group_members")
+@Table(name = "group_members")  // add unique constraint to avoid multiple entries of same user in same group
 public class GroupMembers extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

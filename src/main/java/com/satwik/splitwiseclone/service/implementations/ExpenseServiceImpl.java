@@ -3,7 +3,7 @@ package com.satwik.splitwiseclone.service.implementations;
 import com.satwik.splitwiseclone.exception.BadRequestException;
 import com.satwik.splitwiseclone.exception.DataNotFoundException;
 import com.satwik.splitwiseclone.persistence.dto.expense.*;
-import com.satwik.splitwiseclone.persistence.dto.user.PayerDTO;
+import com.satwik.splitwiseclone.persistence.dto.user.OwerDTO;
 import com.satwik.splitwiseclone.persistence.entities.*;
 import com.satwik.splitwiseclone.repository.*;
 import com.satwik.splitwiseclone.service.interfaces.ExpenseService;
@@ -31,40 +31,63 @@ public class ExpenseServiceImpl implements ExpenseService {
     private UserRepository userRepository;
 
     @Autowired
+    private GroupMembersRepository groupMembersRepository;
+
+    @Autowired
     private ExpenseShareRepository expenseShareRepository;
 
 
     @Override
     @Transactional
-    public String createGroupedExpense(UUID groupId, ExpenseDTO expenseDTO) {
+    public ExpenseDTO createGroupedExpense(UUID groupId, ExpenseDTO expenseDTO) {
 
-        User user = authorizationService.getAuthorizedUser();
+        User payer = expenseDTO.getPayerId() != null ? userRepository.findById(expenseDTO.getPayerId()).orElseThrow(() -> new DataNotFoundException("Payer not found!")) : authorizationService.getAuthorizedUser();
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found"));
+
+        // checking if payer is a member of the group
+        if(!groupMembersRepository.existsByGroupIdAndMemberId(group.getId(), payer.getId()))
+            throw new BadRequestException("Payer is not a member of this group!");
+
         Expense expense = new Expense();
         expense.setAmount(expenseDTO.getAmount());
         expense.setDescription(expenseDTO.getDescription());
         expense.setGroup(group);
-        expense.setOwner(user);
+        expense.setPayer(payer);
         expenseRepository.save(expense);
-        return "Expense successfully created!";
+
+        ExpenseDTO response = new ExpenseDTO();
+        response.setExpenseId(expense.getId());
+        response.setAmount(expense.getAmount());
+        response.setPayerId(expense.getPayer().getId());
+        response.setDescription(expense.getDescription());
+        response.setPayerName(expense.getPayer().getUsername());
+        return response;
     }
 
     @Override
     @Transactional
-    public String createNonGroupedExpense(ExpenseDTO expenseDTO) {
+    public ExpenseDTO createNonGroupedExpense(ExpenseDTO expenseDTO) {
 
         User user = authorizationService.getAuthorizedUser();
+        User payer = expenseDTO.getPayerId() != null ? userRepository.findById(expenseDTO.getPayerId()).orElseThrow(() -> new DataNotFoundException("Payer not found!")) : authorizationService.getAuthorizedUser();
         Group group = groupRepository.findDefaultGroup(user.getId()).orElseThrow(() -> new DataNotFoundException("Group not found"));
 
         Expense expense = new Expense();
         expense.setAmount(expenseDTO.getAmount());
         expense.setDescription(expenseDTO.getDescription());
         expense.setGroup(group);
-        expense.setOwner(user);
+        expense.setPayer(payer);
         expense = expenseRepository.save(expense);
 
+        ExpenseDTO response = new ExpenseDTO();
+        response.setExpenseId(expense.getId());
+        response.setAmount(expense.getAmount());
+        response.setDescription(expense.getDescription());
+        response.setPayerName(expense.getPayer().getUsername());
+        response.setPayerId(expense.getPayer().getId());
+
         // TODO: add owner itself for
-        return expense.getId() + " - Expense successfully created in the default group!";
+        return response;
     }
 
     @Override
@@ -76,15 +99,17 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     @Transactional
-    public String addUserToExpense(UUID expenseId, UUID payerId) {
+    public String addUserToExpense(UUID expenseId, UUID owerId) {
 
         Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new RuntimeException("Expense not found"));
-        User payer = userRepository.findById(payerId).orElseThrow(() -> new RuntimeException("Payee not found"));
+        User ower = userRepository.findById(owerId).orElseThrow(() -> new RuntimeException("Ower not found"));
+        if(expense.getPayer().getId().equals(ower.getId()))
+            throw new BadRequestException("Payer cannot be added as ower to the expense!");
         ExpenseShare expenseShare = new ExpenseShare();
         expenseShare.setExpense(expense);
-        expenseShare.setUser(payer);
+        expenseShare.setUser(ower);
         double sharedAmount = expense.getAmount() /
-                (expenseShareRepository.findCountOfPayer(expenseId) + 1);
+                (expenseShareRepository.findCountOfOwer(expenseId) + 2); // old ower plus one for payer and one for new ower
         expenseShare.setSharedAmount(sharedAmount);
         List<ExpenseShare> shareList = expenseShareRepository.findExpenseShareById(expenseId);
         for (ExpenseShare share : shareList) {
@@ -92,33 +117,38 @@ public class ExpenseServiceImpl implements ExpenseService {
             expenseShareRepository.save(share);
         }
         expenseShareRepository.save(expenseShare);
-        return "Success! Payer is added to the expense.";
+        return "Success! Ower is added to the expense.";
     }
 
     @Override
     @Transactional
-    public String removeUserFromExpense(UUID expenseId, UUID payerId) {
+    public String removeUserFromExpense(UUID expenseId, UUID owerId) {
         Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new DataNotFoundException("Expense not found"));
-        User payer = userRepository.findById(payerId).orElseThrow(() -> new DataNotFoundException("Payer not found"));
-        expenseShareRepository.deleteByExpenseIdAndUserId(expense.getId(), payer.getId());
-        double sharedAmount = expense.getAmount() / (expenseShareRepository.findCountOfPayer(expense.getId()));
+        User ower = userRepository.findById(owerId).orElseThrow(() -> new DataNotFoundException("Ower not found"));
+        if(!expenseShareRepository.existsByExpenseIdAndUserId(expense.getId(), ower.getId()))
+            throw new BadRequestException("Ower is not part of the expense. Hence, cannot be removed!");
+        expenseShareRepository.deleteByExpenseIdAndUserId(expense.getId(), ower.getId());
+        double sharedAmount = expense.getAmount() / (expenseShareRepository.findCountOfOwer(expense.getId()) + 1);  // old ower plus one for payer
         List<ExpenseShare> shareList = expenseShareRepository.findExpenseShareById(expense.getId());
         for (ExpenseShare share : shareList) {
             share.setSharedAmount(sharedAmount);
             expenseShareRepository.save(share);
         }
-        return "Success! Payer is removed from the expense";
+        return "Success! Ower is removed from the expense";
     }
 
     @Override
     public ExpenseDTO findExpenseById(UUID expenseId) {
         Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new DataNotFoundException("Expense not found"));
         ExpenseDTO expenseDTO = new ExpenseDTO();
-        List<PayerDTO> payerDTOS = expenseShareRepository.findPayersWithAmountByExpenseId(expense.getId());
-        expenseDTO.setPayers(payerDTOS);
+        List<OwerDTO> owerDTOS = expenseShareRepository.findOwersWithAmountByExpenseId(expense.getId());
+        expenseDTO.setExpenseId(expense.getId());
+        expenseDTO.setOwers(owerDTOS);
         expenseDTO.setDescription(expense.getDescription());
         expenseDTO.setAmount(expense.getAmount());
-        expenseDTO.setPayerName(expense.getOwner().getUsername());
+        expenseDTO.setPayerName(expense.getPayer().getUsername());
+        expenseDTO.setPayerId(expense.getPayer().getId());
+        expenseDTO.setDate(expense.getCreatedOn());
         return expenseDTO;
     }
 
@@ -129,11 +159,14 @@ public class ExpenseServiceImpl implements ExpenseService {
         List<ExpenseDTO> expenseDTOS = new ArrayList<>();
         for (Expense expense : expenses) {
             ExpenseDTO expenseDTO = new ExpenseDTO();
-            List<PayerDTO> payerDTOS = expenseShareRepository.findPayersWithAmountByExpenseId(expense.getId());
-            expenseDTO.setPayers(payerDTOS);
+            List<OwerDTO> owerDTOS = expenseShareRepository.findOwersWithAmountByExpenseId(expense.getId());
+            expenseDTO.setExpenseId(expense.getId());
+            expenseDTO.setOwers(owerDTOS);
             expenseDTO.setDescription(expense.getDescription());
+            expenseDTO.setDate(expense.getCreatedOn());
             expenseDTO.setAmount(expense.getAmount());
-            expenseDTO.setPayerName(expense.getOwner().getUsername());
+            expenseDTO.setPayerName(expense.getPayer().getUsername());
+            expenseDTO.setPayerId(expense.getPayer().getId());
             expenseDTOS.add(expenseDTO);
         }
         return expenseDTOS;

@@ -72,6 +72,7 @@ public class GroupServiceImpl implements GroupService {
     public String addGroupMembers(UUID groupId, UUID memberId) {
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found!"));
         User member = userRepository.findById(memberId).orElseThrow(() -> new DataNotFoundException("User not found to add as member!"));
+        // TODO : add check to avoid add members to default group
         GroupMembers groupMembers = new GroupMembers();
         groupMembers.setMember(member);
         groupMembers.setGroup(group);
@@ -104,7 +105,6 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public String deleteGroupByGroupId(UUID groupId) {
-        // TODO : add code to check the default group (default group can't be deleted)
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found!"));
 
         if(!group.isDefaultGroup())
@@ -113,7 +113,6 @@ public class GroupServiceImpl implements GroupService {
             throw new RuntimeException("This group is default so can't be delete");
 
         return "Successfully deleted the group - %s.".formatted(groupId);
-
     }
 
     @Override
@@ -128,6 +127,7 @@ public class GroupServiceImpl implements GroupService {
         List<ExpenseListDTO> expenseDTOList = new ArrayList<>();
         for (Expense expense : expenseList) {
             ExpenseListDTO expenseListDTO = new ExpenseListDTO();
+            expenseListDTO.setExpenseId(expense.getId());
             expenseListDTO.setAmount(expense.getAmount());
             expenseListDTO.setDescription(expense.getDescription());
             expenseListDTO.setExpenseCreatedAt(String.valueOf(expense.getCreatedOn()));

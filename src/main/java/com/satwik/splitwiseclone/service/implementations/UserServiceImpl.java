@@ -56,6 +56,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO findUser() {
         User user = authorizationService.getAuthorizedUser();
         return new UserDTO(
+                user.getId(),
                 user.getUsername(),
                 user.getEmail(),
                 new PhoneDTO(user.getCountryCode(), user.getPhoneNumber())

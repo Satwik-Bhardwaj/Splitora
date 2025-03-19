@@ -18,8 +18,8 @@ public class Expense extends BaseEntity {
     private Group group;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    private User owner;
+    @JoinColumn(name = "payer_id")
+    private User payer;
 
     @Column(name = "amount")
     private double amount;

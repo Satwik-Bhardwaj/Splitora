@@ -12,7 +12,9 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
-    branches: [ "develops" ]
+    branches: 
+      - main
+      - develops
 
 jobs:
   build:

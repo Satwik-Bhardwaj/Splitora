@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "expense_share")
+@Table(name = "expense_share", uniqueConstraints = { @UniqueConstraint(columnNames = { "expense_id", "user_id" }) })
 public class ExpenseShare extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
