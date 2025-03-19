@@ -1,6 +1,6 @@
-# Splitwise Clone API
+# Splitora Backend
 
-This Spring Boot project serves as a backend API for a clone of Splitwise, a popular expense management application. The API provides endpoints for managing users, groups, expenses, and settlements, facilitating seamless expense tracking and splitting among users.
+This Spring Boot project serves as a backend for a clone of Splitora, a popular expense management application. The API provides endpoints for managing users, groups, expenses, and settlements, facilitating seamless expense tracking and splitting among users.
 
 ## Features
 
@@ -20,14 +20,14 @@ This Spring Boot project serves as a backend API for a clone of Splitwise, a pop
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/Satwik-Bhardwaj/SplitwiseAppClone.git
+   git clone https://github.com/Satwik-Bhardwaj/Splitora.git
    ```
 
 2. **Database Configuration**:
-    - Install MySQL and create a database named `Splitwise`.
+    - Install MySQL and create a database named `Splitora`.
     - Update `application.properties` with your MySQL username and password:
       ```properties
-      spring.datasource.url=jdbc:mysql://localhost:3306/Splitwise
+      spring.datasource.url=jdbc:mysql://localhost:3306/Splitora
       spring.datasource.username=root
       spring.datasource.password=root
       ```
@@ -63,9 +63,8 @@ To get started with the API, you can import the Postman collection available on 
 - **Endpoints**: Utilize the provided endpoints to perform various operations such as user registration, group creation, expense management, etc.
 - **Authorization**: Ensure proper authorization by including the JWT token in the Authorization header for secured endpoints.
 
-## Contributing
-
-This project is open-source and welcomes contributions from anyone. Feel free to submit a pull request or open an issue if you'd like to contribute.
+## License
+Non-commercial use only. See [LICENSE](./LICENSE) for details.
 
 ## Contact
 
