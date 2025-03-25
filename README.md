@@ -24,33 +24,37 @@ This Spring Boot project serves as a backend for a clone of Splitora, a popular 
    ```
 
 2. **Database Configuration**:
-    - Install MySQL and create a database named `Splitora`.
-    - Update `application.properties` with your MySQL username and password:
-      ```properties
-      spring.datasource.url=jdbc:mysql://localhost:3306/Splitora
-      spring.datasource.username=root
-      spring.datasource.password=root
-      ```
+   - Install MySQL and create a database named `Splitora`.
+   - Update `application.properties` with your MySQL username and password:
+     ```properties
+     spring.datasource.url=jdbc:mysql://localhost:3306/Splitora
+     spring.datasource.username=root
+     spring.datasource.password=root
+     ```
 
 3. **OAuth Configuration**:
-    - Obtain credentials from GCP to enable OAuth functionality.
-    - Update `application.properties` with the following parameters:
-      ```properties
-      spring.security.oauth2.client.registration.google.client-id=abc123
-      spring.security.oauth2.client.registration.google.client-secret=good123
-      ```
-    - If you do not require OAuth2 functionality, you can remove the related parameters and the corresponding controllers and services.
+   - Obtain credentials from GCP to enable OAuth functionality.
+   - Update `application.properties` with the following parameters:
+     ```properties
+     spring.security.oauth2.client.registration.google.client-id=abc123
+     spring.security.oauth2.client.registration.google.client-secret=good123
+     ```
+   - If you do not require OAuth2 functionality, you can remove the related parameters and the corresponding controllers and services.
 
-4. **Run the Application**:
-    - Navigate to the project directory.
-    - Execute the following command:
-      ```bash
-      ./mvnw spring-boot:run
-      ```
+## Running the Application with Docker & Docker Compose
+### 1. **Build and Start the Containers**
+```bash
+docker-compose up --build
+```
+- `--build`: Rebuilds the images before starting the containers.
 
-[//]: # (5. **API Documentation**:)
+Your Spring Boot application will be accessible at 👉 **http://localhost:8081**
 
-[//]: # (    - Access the API documentation at `http://localhost:8080/swagger-ui.html`.)
+### 2️. **Stop the Containers**
+```bash
+docker-compose down
+```
+This will stop and remove all containers, networks, and volumes created by `docker-compose up`.
 
 ## Postman Collection
 To get started with the API, you can import the Postman collection available on Google Drive:
