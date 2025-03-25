@@ -1,0 +1,35 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
+    ports:
+      - "3307:3306" # run on the 3306 port in the container and 3307 port in the host
+    networks:
+      - splitora-db-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", " $${MYSQL_USER}", "--password=$${MYSQL_PASSWORD}" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  app:
+    image: splitora-app
+    container_name: splitora_app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DB} # access the mysql container at the port 3306
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      - splitora-db-network
+
+networks:
+  splitora-db-network:
+    driver: bridge
