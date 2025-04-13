@@ -50,6 +50,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/v1/auth/getUser").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/oauth2/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/oauth2/callback**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/health/ping").permitAll()
                         .anyRequest().authenticated()
         ).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
 
