@@ -52,6 +52,8 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/v1/oauth2/callback**").permitAll()
                         .requestMatchers(HttpMethod.HEAD, "/api/v1/health/ping").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/health/ping").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
         ).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
 
