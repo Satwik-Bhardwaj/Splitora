@@ -2,6 +2,7 @@ package com.satwik.splitora.configuration.filter;
 
 import com.satwik.splitora.configuration.jwt.JwtUtil;
 import com.satwik.splitora.configuration.security.LoggedInUser;
+import com.satwik.splitora.constants.SecurityConstants;
 import com.satwik.splitora.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,21 +19,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.*;
 
 @Slf4j
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
-
-    private static final List<String> WHITELISTED_URLS = new ArrayList<>(Arrays.asList(
-            "/api/v1/auth/login",
-            "/api/v1/auth/refresh_token",
-            "/api/v1/user/register",
-            "/api/v1/oauth2/login",
-            "/api/v1/oauth2/callback",
-            "/api/v1/auth/getUser"
-
-    )); // Add your whitelisted URLs here
 
     @Autowired
     UserRepository userRepository;
@@ -47,7 +37,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     private LoggedInUser loggedInUser;
 
     private boolean isWhitelisted(String url) {
-        return WHITELISTED_URLS.stream().anyMatch(url::contains);
+        return SecurityConstants.WHITELISTED_URLS.stream().anyMatch(url::contains);
     }
 
     @Override
