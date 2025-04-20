@@ -101,8 +101,8 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Transactional
     public String addUserToExpense(UUID expenseId, UUID owerId) {
 
-        Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new RuntimeException("Expense not found"));
-        User ower = userRepository.findById(owerId).orElseThrow(() -> new RuntimeException("Ower not found"));
+        Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new DataNotFoundException("Expense not found"));
+        User ower = userRepository.findById(owerId).orElseThrow(() -> new DataNotFoundException("Ower not found"));
         if(expense.getPayer().getId().equals(ower.getId()))
             throw new BadRequestException("Payer cannot be added as ower to the expense!");
         ExpenseShare expenseShare = new ExpenseShare();

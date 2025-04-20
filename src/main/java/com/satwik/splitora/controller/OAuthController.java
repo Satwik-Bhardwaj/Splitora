@@ -1,10 +1,13 @@
 package com.satwik.splitora.controller;
 
+import com.satwik.splitora.persistence.dto.ResponseModel;
 import com.satwik.splitora.persistence.dto.user.AuthenticationResponse;
 import com.satwik.splitora.service.interfaces.OAuthService;
+import com.satwik.splitora.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -24,14 +27,14 @@ public class OAuthController {
      *
      * @param code the authorization code received from the OAuth2 provider.
      * @param state the state parameter received from the OAuth2 provider, used to prevent CSRF attacks.
-     * @return a ResponseEntity containing the AuthenticationResponse after handling the OAuth2 callback.
+     * @return a ResponseEntity containing a ResponseModel with the AuthenticationResponse after handling the OAuth2 callback.
      */
     @GetMapping("/callback")
-    public ResponseEntity<AuthenticationResponse> handleCallback(@RequestParam("code") String code, @RequestParam("state") String state) {
-        // TODO : Match state
+    public ResponseEntity<ResponseModel<AuthenticationResponse>> handleCallback(@RequestParam("code") String code, @RequestParam("state") String state) {
         log.info("Get Endpoint: oAuth callback with code : {}, state : {}", code, state);
         AuthenticationResponse response = oAuthService.handleCallback(code, state);
-        log.info("Get Endpoint: callback response: {}", response);
-        return ResponseEntity.ok(response);
+        ResponseModel<AuthenticationResponse> responseModel = ResponseUtil.success(response, HttpStatus.OK, "OAuth2 callback handled successfully");
+        log.info("Get Endpoint: callback response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 }

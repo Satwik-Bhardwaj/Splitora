@@ -14,6 +14,8 @@ public enum ErrorCode {
     // Authentication-related errors
     AUTHENTICATION_FAILED(3001, "Authentication failed."),
     ACCESS_DENIED(3002, "Access denied."),
+    ACCESS_TOKEN_INVALID(3003, "Access token expired or invalid. Use refresh token to obtain a new access token."),
+    REFRESH_TOKEN_INVALID(3004, "Refresh token is invalid or expired. Login again!"),
 
     // Validation errors
     VALIDATION_FAILED(4001, "Validation failed."),

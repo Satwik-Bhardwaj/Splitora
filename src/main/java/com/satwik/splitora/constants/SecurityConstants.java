@@ -13,7 +13,7 @@ public class SecurityConstants {
             "/api/v1/oauth2/login",
             "/api/v1/oauth2/callback",
             "/api/v1/health/ping",
-            "/v3/api-docs/**",
-            "/swagger-ui/**"
+            "/v3/api-docs",
+            "/swagger-ui"
     ));
 }

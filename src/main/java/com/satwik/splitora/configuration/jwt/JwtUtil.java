@@ -1,11 +1,13 @@
 package com.satwik.splitora.configuration.jwt;
 
-import com.satwik.splitora.exception.BadRequestException;
+import com.satwik.splitora.exception.AccessTokenInvalidException;
+import com.satwik.splitora.exception.RefreshTokenInvalidException;
 import com.satwik.splitora.persistence.entities.User;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -62,11 +64,9 @@ public class JwtUtil {
         try {
             return getClaims(accessToken, ACCESS_SECRET_KEY);
         }catch (ExpiredJwtException expiredJwtException) {
-            log.error("access token expired!");
-            throw new RuntimeException("Access token is expired! Use refresh token to get new refresh token");
+            throw new AccessTokenInvalidException("Access token is expired! Use refresh token to get new access token");
         }catch (SignatureException signatureException) {
-            log.error("invalid signature of access token");
-            throw new RuntimeException("Access token has invalid signature!");
+            throw new AccessTokenInvalidException("Access token has invalid signature!");
         }
     }
 
@@ -74,11 +74,9 @@ public class JwtUtil {
         try {
             return getClaims(refreshToken, REFRESH_SECRET_KEY);
         }catch (ExpiredJwtException expiredJwtException) {
-            log.error("refresh token expired! User have to log in again");
-            throw new BadRequestException("Refresh token is expired! Please log in again...");
+            throw new RefreshTokenInvalidException("Refresh token is expired! Please log in again...");
         }catch (SignatureException signatureException) {
-            log.error("invalid signature of refresh token");
-            throw new BadRequestException("Refresh token has invalid signature!");
+            throw new RefreshTokenInvalidException("Refresh token has invalid signature!");
         }
     }
 
@@ -99,10 +97,9 @@ public class JwtUtil {
     }
 
     // validate token itself
-    public boolean validateToken(String token, String userEmail) {
-        String tokenUserEmail = getUserEmail(token);
+    public boolean validateToken(String token, UserDetails userDetails) {
 
-        // check if userId matches to token userId and token is not expired
-        return (tokenUserEmail.equals(userEmail) && !isTokenExp(token));
+        String email = getUserEmail(token);
+        return email != null && email.equals(userDetails.getUsername()) && !isTokenExp(token);
     }
 }
