@@ -1,7 +1,9 @@
 package com.satwik.splitora.controller;
 
+import com.satwik.splitora.persistence.dto.ResponseModel;
 import com.satwik.splitora.persistence.dto.expense.ExpenseDTO;
 import com.satwik.splitora.service.interfaces.ExpenseService;
+import com.satwik.splitora.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,11 +32,12 @@ public class ExpenseController {
      *         result of the expense creation process.
      */
     @PostMapping("/create")
-    public ResponseEntity<ExpenseDTO> createExpense(@RequestBody ExpenseDTO expenseDTO) {
+    public ResponseEntity<ResponseModel<ExpenseDTO>> createExpense(@RequestBody ExpenseDTO expenseDTO) {
         log.info("Post Endpoint: create expense with request: {}", expenseDTO);
         ExpenseDTO response = expenseService.createNonGroupedExpense(expenseDTO);
-        log.info("Post Endpoint: create expense with response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<ExpenseDTO> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Expense created successfully");
+        log.info("Post Endpoint: create expense with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
@@ -49,11 +52,12 @@ public class ExpenseController {
      *         result of the grouped expense creation process.
      */
     @PostMapping("/create/{groupId}")
-    public ResponseEntity<ExpenseDTO> createExpense(@PathVariable UUID groupId, @RequestBody ExpenseDTO expenseDTO) {
+    public ResponseEntity<ResponseModel<ExpenseDTO>> createExpense(@PathVariable UUID groupId, @RequestBody ExpenseDTO expenseDTO) {
         log.info("Post Endpoint: create grouped expense with request: {} and groupId: {}", expenseDTO, groupId);
         ExpenseDTO response = expenseService.createGroupedExpense(groupId, expenseDTO);
-        log.info("Post Endpoint: create grouped expense with response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<ExpenseDTO> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Grouped expense created successfully");
+        log.info("Post Endpoint: create grouped expense with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
@@ -67,11 +71,12 @@ public class ExpenseController {
      *         result of the expense deletion process.
      */
     @DeleteMapping("/delete/{expenseId}")
-    public ResponseEntity<String> deleteExpense(@PathVariable UUID expenseId) {
+    public ResponseEntity<ResponseModel<String>> deleteExpense(@PathVariable UUID expenseId) {
         log.info("Delete Endpoint: delete an expense with id: {}", expenseId);
         String response = expenseService.deleteExpenseById(expenseId);
-        log.info("Delete Endpoint: delete an expense with response: {}", response);
-        return ResponseEntity.ok(response);
+        ResponseModel<String> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Expense deleted successfully");
+        log.info("Delete Endpoint: delete an expense with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
@@ -87,11 +92,12 @@ public class ExpenseController {
      *         result of the operation.
      */
     @PostMapping("/add-ower/{expenseId}")
-    public ResponseEntity<String> addOwerToExpense(@RequestParam UUID owerId, @PathVariable UUID expenseId) {
+    public ResponseEntity<ResponseModel<String>> addOwerToExpense(@RequestParam UUID owerId, @PathVariable UUID expenseId) {
         log.info("Post Endpoint: add ower with owerId: {}, to an expense with expenseId: {}", owerId, expenseId);
         String response = expenseService.addUserToExpense(expenseId, owerId);
-        log.info("Post Endpoint: add ower to expense with response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<String> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Ower added to expense successfully");
+        log.info("Post Endpoint: add ower to expense with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
@@ -107,11 +113,12 @@ public class ExpenseController {
      *         result of the operation.
      */
     @DeleteMapping("/remove-ower/{expenseId}")
-    public ResponseEntity<String> removeOwerFromExpense(@RequestParam UUID owerId, @PathVariable UUID expenseId) {
+    public ResponseEntity<ResponseModel<String>> removeOwerFromExpense(@RequestParam UUID owerId, @PathVariable UUID expenseId) {
         log.info("Delete Endpoint: remove ower with owerId: {} from an expense with expenseId: {}", owerId, expenseId);
         String response = expenseService.removeUserFromExpense(expenseId, owerId);
-        log.info("Delete Endpoint: remove ower from an expense with response: {}", response);
-        return ResponseEntity.ok(response);
+        ResponseModel<String> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Ower removed from expense successfully");
+        log.info("Delete Endpoint: remove ower from an expense with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
@@ -124,11 +131,12 @@ public class ExpenseController {
      * @return a ResponseEntity containing the ExpenseDTO of the requested expense.
      */
     @GetMapping("/{expenseId}")
-    public ResponseEntity<ExpenseDTO> findExpense(@PathVariable UUID expenseId) {
+    public ResponseEntity<ResponseModel<ExpenseDTO>> findExpense(@PathVariable UUID expenseId) {
         log.info("Get Endpoint: find an expense with expenseId: {}", expenseId);
         ExpenseDTO response = expenseService.findExpenseById(expenseId);
-        log.info("Get Endpoint: find an expense with response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<ExpenseDTO> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Expense retrieved successfully");
+        log.info("Get Endpoint: find an expense with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
@@ -141,10 +149,11 @@ public class ExpenseController {
      * @return a ResponseEntity containing a list of ExpenseDTOs for all expenses within the group.
      */
     @GetMapping("/group/{groupId}")
-    public ResponseEntity<List<ExpenseDTO>> findAllExpense(@PathVariable UUID groupId) {
+    public ResponseEntity<ResponseModel<List<ExpenseDTO>>> findAllExpense(@PathVariable UUID groupId) {
         log.info("Get Endpoint: find all expense within a group with groupId: {}", groupId);
         List<ExpenseDTO> response = expenseService.findAllExpense(groupId);
-        log.info("Get Endpoint: find all expense within a group with response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<List<ExpenseDTO>> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Expenses retrieved successfully");
+        log.info("Get Endpoint: find all expense within a group with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 }

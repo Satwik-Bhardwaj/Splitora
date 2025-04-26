@@ -1,9 +1,11 @@
 package com.satwik.splitora.controller;
 
 import com.satwik.splitora.configuration.security.LoggedInUser;
+import com.satwik.splitora.persistence.dto.ResponseModel;
 import com.satwik.splitora.persistence.dto.user.RegisterUserRequest;
 import com.satwik.splitora.persistence.dto.user.UserDTO;
 import com.satwik.splitora.service.interfaces.UserService;
+import com.satwik.splitora.util.ResponseUtil;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,67 +27,58 @@ public class UserController {
     /**
      * Registers a new user.
      *
-     * This endpoint processes the request to register a new user with the provided registration details.
-     * It logs the incoming request and the resulting response.
-     *
      * @param registerUserRequest the request object containing user registration details.
-     * @return a ResponseEntity containing a string response message indicating the result of the registration process.
+     * @return a ResponseEntity containing a ResponseModel with the result of the registration process.
      */
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
+    public ResponseEntity<ResponseModel<String>> registerUser(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
         log.info("Post Endpoint: register user with request: {}", registerUserRequest);
         String response = userService.saveUser(registerUserRequest);
-        log.info("Post Endpoint: register user with response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<String> responseModel = ResponseUtil.success(response, HttpStatus.OK, "User registered successfully");
+        log.info("Post Endpoint: register user with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
      * Retrieves the current user details.
      *
-     * This endpoint processes the request to retrieve the details of the currently logged-in user.
-     * It logs the incoming request and the resulting response.
-     *
-     * @return a ResponseEntity containing the UserDTO of the currently logged-in user.
+     * @return a ResponseEntity containing a ResponseModel with the UserDTO of the currently logged-in user.
      */
     @GetMapping("")
-    public ResponseEntity<UserDTO> getUser() {
+    public ResponseEntity<ResponseModel<UserDTO>> getUser() {
         log.info("Get Endpoint: get user");
         UserDTO response = userService.findUser();
-        log.info("Get Endpoint: get user with response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<UserDTO> responseModel = ResponseUtil.success(response, HttpStatus.OK, "User details retrieved successfully");
+        log.info("Get Endpoint: get user with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
      * Updates the details of a user.
      *
-     * This endpoint processes the request to update the details of a user identified by the given user ID
-     * with the provided registration details. It logs the incoming request and the resulting response.
-     *
      * @param updateUserRequest the request object containing updated user details.
-     * @return a ResponseEntity containing a string response message indicating the result of the update process.
+     * @return a ResponseEntity containing a ResponseModel with the result of the update process.
      */
     @PutMapping("update/{userId}")
-    public ResponseEntity<String> updateUser(@Valid @RequestBody RegisterUserRequest updateUserRequest) {
+    public ResponseEntity<ResponseModel<String>> updateUser(@Valid @RequestBody RegisterUserRequest updateUserRequest) {
         log.info("Put Endpoint: update user with id: {}, and register user request: {}", loggedInUser.getUserId(), updateUserRequest);
         String response = userService.updateUser(updateUserRequest);
-        log.info("Put Endpoint: update user with response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<String> responseModel = ResponseUtil.success(response, HttpStatus.OK, "User updated successfully");
+        log.info("Put Endpoint: update user with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
      * Deletes the current user.
      *
-     * This endpoint processes the request to delete the currently logged-in user. It logs the incoming request
-     * and the resulting response.
-     *
-     * @return a ResponseEntity containing a string response message indicating the result of the deletion process.
+     * @return a ResponseEntity containing a ResponseModel with the result of the deletion process.
      */
     @DeleteMapping("delete")
-    public ResponseEntity<String> deleteUser() {
+    public ResponseEntity<ResponseModel<String>> deleteUser() {
         log.info("Delete Endpoint: delete user");
         String response = userService.deleteUser();
-        log.info("Delete Endpoint: delete user with response: {}", response);
-        return ResponseEntity.ok(response);
+        ResponseModel<String> responseModel = ResponseUtil.success(response, HttpStatus.OK, "User deleted successfully");
+        log.info("Delete Endpoint: delete user with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
-
 }
