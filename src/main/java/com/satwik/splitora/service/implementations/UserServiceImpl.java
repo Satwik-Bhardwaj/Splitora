@@ -1,6 +1,7 @@
 package com.satwik.splitora.service.implementations;
 
 import com.satwik.splitora.constants.enums.RegistrationMethod;
+import com.satwik.splitora.constants.enums.UserRole;
 import com.satwik.splitora.persistence.dto.user.PhoneDTO;
 import com.satwik.splitora.persistence.dto.user.RegisterUserRequest;
 import com.satwik.splitora.persistence.dto.user.UserDTO;
@@ -37,6 +38,7 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
+        user.setUserRole(UserRole.USER);
         user.setCountryCode(request.getPhone().getCountryCode());
         user.setPhoneNumber(request.getPhone().getPhoneNumber());
         user.setPassword(pwdEncoder.encode(request.getPassword()));

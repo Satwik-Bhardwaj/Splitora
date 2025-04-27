@@ -16,6 +16,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
@@ -43,6 +44,7 @@ public class ReportServiceImpl implements ReportService {
     private String REPORT_FILE_PATH;
 
     @Override
+    @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public List<ReportDTO> generateReport(UUID groupId) {
 
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found"));
@@ -67,6 +69,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public String exportReport(UUID groupId, String fileType) {
         User user = authorizationService.getAuthorizedUser();
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found"));
@@ -163,6 +166,4 @@ public class ReportServiceImpl implements ReportService {
         }
 
     }
-
-
 }

@@ -7,10 +7,9 @@ import com.satwik.splitora.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.nio.file.AccessDeniedException;
 
 @Slf4j
 @RestControllerAdvice
@@ -60,7 +59,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponseModel> handleAccessDeniedException(FailedToSaveException ex) {
+    public ResponseEntity<ErrorResponseModel> handleAccessDeniedException(AccessDeniedException ex) {
         log.info("AccessDeniedException occurred: ", ex);
         ErrorResponseModel errorResponse = ResponseUtil.error("Access Denied", HttpStatus.FORBIDDEN, new ErrorDetails(
                 ErrorCode.ACCESS_DENIED.getCode(),
