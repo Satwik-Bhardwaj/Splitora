@@ -16,6 +16,8 @@ import com.satwik.splitora.repository.UserRepository;
 import com.satwik.splitora.service.interfaces.GroupService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -67,8 +69,9 @@ public class GroupServiceImpl implements GroupService {
         return groupListDTO;
     }
 
-    @Transactional
     @Override
+    @Transactional
+    @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public String addGroupMembers(UUID groupId, UUID memberId) {
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found!"));
         User member = userRepository.findById(memberId).orElseThrow(() -> new DataNotFoundException("User not found to add as member!"));
@@ -81,6 +84,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public List<UserDTO> findMembers(UUID groupId) {
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found!"));
         List<GroupMembers> groupMembersList = groupMembersRepository.findByGroupId(group.getId());
@@ -95,8 +99,9 @@ public class GroupServiceImpl implements GroupService {
         return userDTOS;
     }
 
-    @Transactional
     @Override
+    @Transactional
+    @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public String deleteMembers(UUID groupId, UUID groupMemberId) {
         groupMembersRepository.deleteById(groupMemberId);
         return "Member successfully removed from the group!";
@@ -104,18 +109,20 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional
+    @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public String deleteGroupByGroupId(UUID groupId) {
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found!"));
 
         if(!group.isDefaultGroup())
             groupRepository.deleteById(groupId);
         else
-            throw new RuntimeException("This group is default so can't be delete");
+            throw new AccessDeniedException("This group is default so can't be delete");
 
         return "Successfully deleted the group - %s.".formatted(groupId);
     }
 
     @Override
+    @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public GroupDTO findGroupByGroupId(UUID groupId) {
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found!"));
         GroupDTO groupDTO = new GroupDTO();
@@ -124,6 +131,16 @@ public class GroupServiceImpl implements GroupService {
         groupDTO.setOwner(group.getUser().getUsername());
 
         List<Expense> expenseList = expenseRepository.findByGroupId(groupId);
+        List<ExpenseListDTO> expenseDTOList = getExpenseListDTOS(expenseList);
+        groupDTO.setExpenses(expenseDTOList);
+
+        List<GroupMemberDTO> groupMemberDTOS = getGroupMemberDTOS(group);
+        groupDTO.setGroupMembers(groupMemberDTOS);
+
+        return groupDTO;
+    }
+
+    private static List<ExpenseListDTO> getExpenseListDTOS(List<Expense> expenseList) {
         List<ExpenseListDTO> expenseDTOList = new ArrayList<>();
         for (Expense expense : expenseList) {
             ExpenseListDTO expenseListDTO = new ExpenseListDTO();
@@ -133,12 +150,7 @@ public class GroupServiceImpl implements GroupService {
             expenseListDTO.setExpenseCreatedAt(String.valueOf(expense.getCreatedOn()));
             expenseDTOList.add(expenseListDTO);
         }
-        groupDTO.setExpenses(expenseDTOList);
-
-        List<GroupMemberDTO> groupMemberDTOS = getGroupMemberDTOS(group);
-        groupDTO.setGroupMembers(groupMemberDTOS);
-
-        return groupDTO;
+        return expenseDTOList;
     }
 
     private static List<GroupMemberDTO> getGroupMemberDTOS(Group group) {
@@ -158,6 +170,7 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional
+    @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public String updateGroup(GroupUpdateRequest groupUpdateRequest, UUID groupId) {
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found"));
         group.setGroupName(groupUpdateRequest.getGroupName());

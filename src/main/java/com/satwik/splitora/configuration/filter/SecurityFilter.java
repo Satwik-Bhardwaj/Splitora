@@ -7,6 +7,7 @@ import com.satwik.splitora.configuration.jwt.JwtUtil;
 import com.satwik.splitora.configuration.security.LoggedInUser;
 import com.satwik.splitora.constants.SecurityConstants;
 import com.satwik.splitora.constants.enums.ErrorCode;
+import com.satwik.splitora.constants.enums.UserRole;
 import com.satwik.splitora.persistence.dto.ErrorDetails;
 import com.satwik.splitora.persistence.dto.ErrorResponseModel;
 import com.satwik.splitora.repository.UserRepository;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -28,6 +30,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -76,6 +81,10 @@ public class SecurityFilter extends OncePerRequestFilter {
 
             // get the user email using the token
             String userEmail = jwtUtil.getUserEmail(token);
+            // get the user id using the token
+            UUID userId = UUID.fromString(jwtUtil.getUserId(token));
+            // get the user role using the token
+            String userRole = jwtUtil.getUserRole(token);
 
             // username should not be empty, cont-auth must be empty
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -87,13 +96,16 @@ public class SecurityFilter extends OncePerRequestFilter {
                 boolean isValid = jwtUtil.validateToken(token, userDetails);
 
                 if (isValid) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userEmail, null, userDetails.getAuthorities());
+
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userEmail, null, Collections.singletonList(new SimpleGrantedAuthority(userRole)));
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
 
                     loggedInUser.setUserEmail(userEmail);
+                    loggedInUser.setUserId(userId);
+                    loggedInUser.setRole(UserRole.fromString(userRole));
                 }
             }
         } catch (Exception e) {

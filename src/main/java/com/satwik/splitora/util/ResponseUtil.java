@@ -11,7 +11,7 @@ public class ResponseUtil {
 
     public static <T> ResponseModel<T> success(T data, HttpStatus status, String message) {
         return ResponseModel.<T>builder()
-                .status(HttpStatus.OK.name())
+                .status(status.name())
                 .message(message)
                 .timestamp(LocalDateTime.now())
                 .data(data)
