@@ -33,7 +33,7 @@ jobs:
         run: |
           docker build \
             --build-arg SPRING_LIQUIBASE_CONTEXTS=prod \
-            --build-arg SPRING_LIQUIBASE_CHANGELOG=classpath:db/changelog/db.changelog-master-prod.yaml
+            --build-arg SPRING_LIQUIBASE_CHANGELOG=classpath:db/changelog/db.changelog-master-prod.yaml \
             -t ${{ secrets.DOCKER_HUB_USERNAME }}/splitora-app:1.0 .
 
       - name: Push Docker Image to Docker Hub
