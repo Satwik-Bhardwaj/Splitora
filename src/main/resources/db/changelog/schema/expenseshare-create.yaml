@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-expenseshare-table
+      author: splitora
+      changes:
+        - createTable:
+            tableName: expense_share
+            columns:
+              - column:
+                  name: id
+                  type: BINARY(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: created_by
+                  type: BINARY(16)
+              - column:
+                  name: created_on
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: modified_by
+                  type: BINARY(16)
+              - column:
+                  name: modified_on
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: expense_id
+                  type: BINARY(16)
+                  constraints:
+                    foreignKeyName: fk_expenseshare_expense
+                    references: expense(id)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+                  constraints:
+                    foreignKeyName: fk_expenseshare_user
+                    references: user(id)
+              - column:
+                  name: shared_amount
+                  type: DOUBLE

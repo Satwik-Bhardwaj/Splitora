@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/schema/user-create.yaml
+  - include:
+      file: db/changelog/schema/group-create.yaml
+  - include:
+      file: db/changelog/schema/groupmembers-create.yaml
+  - include:
+      file: db/changelog/schema/expense-create.yaml
+  - include:
+      file: db/changelog/schema/expenseshare-create.yaml
+  - include:
+      file: db/changelog/data/seed-users.yaml
+  - include:
+      file: db/changelog/data/seed-groups.yaml

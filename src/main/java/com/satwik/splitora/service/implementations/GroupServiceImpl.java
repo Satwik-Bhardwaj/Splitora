@@ -91,6 +91,7 @@ public class GroupServiceImpl implements GroupService {
         List<UserDTO> userDTOS = new ArrayList<>();
         for (GroupMembers groupMembers : groupMembersList) {
             UserDTO userDTO = new UserDTO();
+            userDTO.setUserId(groupMembers.getMember().getId());
             userDTO.setEmail(groupMembers.getMember().getEmail());
             userDTO.setUsername(groupMembers.getMember().getUsername());
             userDTO.setPhone(new PhoneDTO(groupMembers.getMember().getCountryCode(), groupMembers.getMember().getPhoneNumber()));

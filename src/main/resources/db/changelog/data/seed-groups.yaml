@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2025-05-31-load-groups
+      author: splitora
+      changes:
+        - sql:
+            splitStatements: false
+            stripComments: true
+            sql: |
+              INSERT IGNORE INTO group_table (
+                id, created_by, created_on, modified_by, modified_on, default_group, group_name, user_id
+              ) VALUES
+              (
+                UNHEX('a1b2c3d4e5f60123456789abcdef0001'), NULL, '2025-05-26 13:24:27.589321', NULL, '2025-05-26 13:24:27.589321',
+                1, 'Non Grouped Expenses', UNHEX('3719917506b14643afc7b8815fdc81cf')
+              ),
+              (
+                UNHEX('a1b2c3d4e5f60123456789abcdef0002'), NULL, '2025-05-26 13:24:27.596714', NULL, '2025-05-26 13:24:27.596714',
+                1, 'Non Grouped Expenses', UNHEX('5790c07ad90e4df6a062e6465f658127')
+              ),
+              (
+                UNHEX('a1b2c3d4e5f60123456789abcdef0003'), NULL, '2025-05-26 13:24:27.601860', NULL, '2025-05-26 13:24:27.601864',
+                1, 'Non Grouped Expenses', UNHEX('784ad2e326344ba58c5028c8ee56bcd8')
+              );
