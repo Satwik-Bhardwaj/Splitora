@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/schema/user-create.yaml
+      context: dev
+  - include:
+      file: db/changelog/schema/group-create.yaml
+      context: dev
+  - include:
+      file: db/changelog/schema/groupmembers-create.yaml
+      context: dev
+  - include:
+      file: db/changelog/schema/expense-create.yaml
+      context: dev
+  - include:
+      file: db/changelog/schema/expenseshare-create.yaml
+      context: dev
+  - include:
+      file: db/changelog/data/seed-users.yaml
+      context: dev
+  - include:
+      file: db/changelog/data/seed-groups.yaml
+      context: dev

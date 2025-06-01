@@ -34,7 +34,7 @@ public class User extends BaseEntity {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "registrationMethod")
+    @Column(name = "registration_method")
     private RegistrationMethod registrationMethod;
 
     @Enumerated(EnumType.STRING)

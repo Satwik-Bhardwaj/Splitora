@@ -18,7 +18,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponseModel> handleBadRequestException(RuntimeException ex) {
         log.info("Runtime exception occurred: ", ex);
-        ErrorResponseModel errorResponse = ResponseUtil.error("Bad Request", HttpStatus.BAD_REQUEST, new ErrorDetails(
+        ErrorResponseModel errorResponse = ResponseUtil.error(ex.getMessage(), HttpStatus.BAD_REQUEST, new ErrorDetails(
                 ErrorCode.INVALID_REQUEST.getCode(),
                 ErrorCode.INVALID_REQUEST.getMessage()
         ));
@@ -39,7 +39,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(DataNotFoundException.class)
     public ResponseEntity<ErrorResponseModel> handleDataNotFoundException(DataNotFoundException ex) {
         log.info("DataNotFoundException occurred: ", ex);
-        ErrorResponseModel errorResponse = ResponseUtil.error("Data Not Found", HttpStatus.NOT_FOUND, new ErrorDetails(
+        ErrorResponseModel errorResponse = ResponseUtil.error(ex.getMessage(), HttpStatus.NOT_FOUND, new ErrorDetails(
                 ErrorCode.ENTITY_NOT_FOUND.getCode(),
                 ErrorCode.ENTITY_NOT_FOUND.getMessage()
         ));

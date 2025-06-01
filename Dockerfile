@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy the jar file into the container at /app
 COPY target/*.jar app.jar
 
+ARG SPRING_LIQUIBASE_CONTEXTS
+ENV SPRING_LIQUIBASE_CONTEXTS=${SPRING_LIQUIBASE_CONTEXTS}
+
 # Expose the port the app runs in
 EXPOSE 8081
 

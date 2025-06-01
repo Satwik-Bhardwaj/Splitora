@@ -1,0 +1,67 @@
+# Connection of spring application with database
+spring:
+    datasource:
+        url: jdbc:mysql://localhost:3306/Splitora
+        username: root
+        password: root
+        driver-class-name: com.mysql.cj.jdbc.Driver
+
+    jpa:
+        hibernate:
+            ddl-auto: none
+            naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+
+    liquibase:
+        enabled: true
+        change-log: classpath:db/changelog/db.changelog-master-dev.yaml
+        contexts: ${SPRING_LIQUIBASE_CONTEXTS:dev}
+        # show-sql: true  # Uncomment to enable SQL logging
+
+    security:
+        oauth2:
+            client:
+                registration:
+                    google:
+                        client-id: abc123
+                        client-secret: good123
+                        scope:
+                            - openid
+                            - email
+                            - profile
+                        redirect-uri: http://localhost:3000/callback
+                provider:
+                    google:
+                        authorization-uri: https://accounts.google.com/o/oauth2/auth
+                        token-uri: https://oauth2.googleapis.com/token
+                        user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+                        user-name-attribute: name
+
+server:
+    port: 8081
+
+# JWT security
+jwt:
+    access:
+        secretKey: SuP9ErKeY
+        expirationTimeInMinutes: 150
+    refresh:
+        secretKey: wUP89ErKie
+        expirationTimeInMinutes: 2000
+
+# File path for the report
+my:
+    reportFilePath: /home/ongraph/Downloads/
+
+app:
+    initial-users:
+        super-admin:
+            username: ${SUPERADMIN_USERNAME}
+            password: ${SUPERADMIN_PASSWORD}
+            email: ${SUPERADMIN_EMAIL}
+        regular-users:
+            - username: ${USER1_USERNAME}
+              password: ${USER1_PASSWORD}
+              email: ${USER1_EMAIL}
+            - username: ${USER2_USERNAME}
+              password: ${USER2_PASSWORD}
+              email: ${USER2_EMAIL}
