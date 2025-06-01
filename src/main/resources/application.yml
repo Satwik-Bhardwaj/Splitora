@@ -13,7 +13,8 @@ spring:
 
     liquibase:
         enabled: true
-        change-log: classpath:db/changelog/db.changelog-master.yaml
+        change-log: classpath:db/changelog/db.changelog-master-dev.yaml
+        contexts: ${SPRING_LIQUIBASE_CONTEXTS:dev}
         # show-sql: true  # Uncomment to enable SQL logging
 
     security:

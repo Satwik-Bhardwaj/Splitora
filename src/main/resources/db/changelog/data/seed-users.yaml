@@ -2,6 +2,7 @@ databaseChangeLog:
     - changeSet:
           id: 2025-05-31-load-users
           author: splitora
+          context: dev
           changes:
             - sql:
                 splitStatements: false

@@ -27,6 +27,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DB} # access the mysql container at the port 3306
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_LIQUIBASE_CONTEXTS: dev
     networks:
       - splitora-db-network
 
