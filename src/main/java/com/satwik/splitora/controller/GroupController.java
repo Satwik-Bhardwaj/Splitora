@@ -1,11 +1,13 @@
 package com.satwik.splitora.controller;
 
 import com.satwik.splitora.configuration.security.LoggedInUser;
+import com.satwik.splitora.persistence.dto.ResponseModel;
 import com.satwik.splitora.persistence.dto.group.GroupDTO;
 import com.satwik.splitora.persistence.dto.group.GroupListDTO;
 import com.satwik.splitora.persistence.dto.group.GroupUpdateRequest;
 import com.satwik.splitora.persistence.dto.user.UserDTO;
 import com.satwik.splitora.service.interfaces.GroupService;
+import com.satwik.splitora.util.ResponseUtil;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +40,12 @@ public class GroupController {
      *         result of the group creation process.
      */
     @PostMapping("/create")
-    public ResponseEntity<String> createGroup(@Valid @RequestBody GroupDTO groupDTO) {
+    public ResponseEntity<ResponseModel<String>> createGroup(@Valid @RequestBody GroupDTO groupDTO) {
         log.info("Post Endpoint: create group request: {}", groupDTO);
         String response = groupService.createGroup(groupDTO);
-        log.info("Post Endpoint: create group response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<String> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Group created successfully");
+        log.info("Post Endpoint: create group response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
@@ -56,11 +59,12 @@ public class GroupController {
      *         result of the group deletion process.
      */
     @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteGroup(@RequestParam UUID groupId) {
+    public ResponseEntity<ResponseModel<String>> deleteGroup(@RequestParam UUID groupId) {
         log.info("Delete Endpoint: delete group with id: {}", groupId);
         String response = groupService.deleteGroupByGroupId(groupId);
-        log.info("Delete Endpoint: delete group response: {}", response);
-        return ResponseEntity.ok(response);
+        ResponseModel<String> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Group deleted successfully");
+        log.info("Delete Endpoint: delete group response: {}", responseModel);
+        return ResponseEntity.ok(responseModel);
     }
 
     /**
@@ -73,11 +77,12 @@ public class GroupController {
      * @return a ResponseEntity containing the GroupDTO of the requested group.
      */
     @GetMapping("/{groupId}")
-    public ResponseEntity<GroupDTO> findGroup(@PathVariable UUID groupId) {
+    public ResponseEntity<ResponseModel<GroupDTO>> findGroup(@PathVariable UUID groupId) {
         log.info("Get Endpoint: find group with id: {}", groupId);
         GroupDTO groupDTO = groupService.findGroupByGroupId(groupId);
-        log.info("Get Endpoint: find group response: {}", groupDTO);
-        return ResponseEntity.status(HttpStatus.OK).body(groupDTO);
+        ResponseModel<GroupDTO> responseModel = ResponseUtil.success(groupDTO, HttpStatus.OK, "Group retrieved successfully");
+        log.info("Get Endpoint: find group response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
@@ -92,11 +97,12 @@ public class GroupController {
      *         result of the group update process.
      */
     @PutMapping("/update/{groupId}")
-    public ResponseEntity<String> updateGroup(@RequestBody GroupUpdateRequest groupUpdateRequest, @PathVariable UUID groupId) {
+    public ResponseEntity<ResponseModel<String>> updateGroup(@RequestBody GroupUpdateRequest groupUpdateRequest, @PathVariable UUID groupId) {
         log.info("Put Endpoint: update group with request: {} and request: {}", groupUpdateRequest, groupId);
         String response = groupService.updateGroup(groupUpdateRequest, groupId);
-        log.info("Put Endpoint: update group with response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<String> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Group updated successfully");
+        log.info("Put Endpoint: update group with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
@@ -108,11 +114,12 @@ public class GroupController {
      * @return a ResponseEntity containing a GroupListDTO with all the groups of the user.
      */
     @GetMapping("")
-    public ResponseEntity<GroupListDTO> findAllGroup() {
+    public ResponseEntity<ResponseModel<GroupListDTO>> findAllGroup() {
         log.info("Get Endpoint: find all group of the user");
         GroupListDTO response = groupService.findAllGroup();
-        log.info("Get Endpoint: find all group of the user with response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<GroupListDTO> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Groups retrieved successfully");
+        log.info("Get Endpoint: find all group of the user with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
@@ -128,11 +135,12 @@ public class GroupController {
      *         result of the member addition process.
      */
     @PostMapping("/add-member/{groupId}")
-    public ResponseEntity<String> addGroupMembers(@PathVariable UUID groupId, @RequestParam UUID memberId) {
+    public ResponseEntity<ResponseModel<String>> addGroupMembers(@PathVariable UUID groupId, @RequestParam UUID memberId) {
         log.info("Post Endpoint: add member with memberId: {} to the group with groupId: {}", memberId, groupId);
         String response = groupService.addGroupMembers(groupId, memberId);
-        log.info("Post Endpoint: add member with response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<String> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Member added to group successfully");
+        log.info("Post Endpoint: add member with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
@@ -145,11 +153,12 @@ public class GroupController {
      * @return a ResponseEntity containing a list of UserDTOs for all members of the group.
      */
     @GetMapping("/{groupId}/members")
-    public ResponseEntity<List<UserDTO>> findMembers(@PathVariable UUID groupId) {
+    public ResponseEntity<ResponseModel<List<UserDTO>>> findMembers(@PathVariable UUID groupId) {
         log.info("Get Endpoint: find members of group with groupId: {}", groupId);
         List<UserDTO> response = groupService.findMembers(groupId);
-        log.info("Get Endpoint: find members of group with response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<List<UserDTO>> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Group members retrieved successfully");
+        log.info("Get Endpoint: find members of group with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 
     /**
@@ -165,10 +174,11 @@ public class GroupController {
      *         result of the member removal process.
      */
     @DeleteMapping("/remove-member/{groupMemberId}")
-    public ResponseEntity<String> deleteMembers(@PathVariable UUID groupMemberId, @RequestParam UUID groupId) {
+    public ResponseEntity<ResponseModel<String>> deleteMembers(@PathVariable UUID groupMemberId, @RequestParam UUID groupId) {
         log.info("Delete Endpoint: delete a member with memberId: {} and groupId: {}", groupMemberId, groupId);
         String response = groupService.deleteMembers(groupId, groupMemberId);
-        log.info("Delete Endpoint: delete a member with response: {}", response);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        ResponseModel<String> responseModel = ResponseUtil.success(response, HttpStatus.OK, "Member removed from group successfully");
+        log.info("Delete Endpoint: delete a member with response: {}", responseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 }

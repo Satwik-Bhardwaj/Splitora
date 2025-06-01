@@ -9,6 +9,7 @@ import com.satwik.splitora.repository.*;
 import com.satwik.splitora.service.interfaces.ExpenseService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     @Transactional
+    @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public ExpenseDTO createGroupedExpense(UUID groupId, ExpenseDTO expenseDTO) {
 
         User payer = expenseDTO.getPayerId() != null ? userRepository.findById(expenseDTO.getPayerId()).orElseThrow(() -> new DataNotFoundException("Payer not found!")) : authorizationService.getAuthorizedUser();
@@ -92,6 +94,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     @Transactional
+    @PreAuthorize("@authorizationService.isExpenseOwner(#expenseId)")
     public String deleteExpenseById(UUID expenseId) {
         expenseRepository.deleteById(expenseId);
         return "Expense is deleted successfully!";
@@ -99,10 +102,11 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     @Transactional
+    @PreAuthorize("@authorizationService.isExpenseOwner(#expenseId)")
     public String addUserToExpense(UUID expenseId, UUID owerId) {
 
-        Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new RuntimeException("Expense not found"));
-        User ower = userRepository.findById(owerId).orElseThrow(() -> new RuntimeException("Ower not found"));
+        Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new DataNotFoundException("Expense not found"));
+        User ower = userRepository.findById(owerId).orElseThrow(() -> new DataNotFoundException("Ower not found"));
         if(expense.getPayer().getId().equals(ower.getId()))
             throw new BadRequestException("Payer cannot be added as ower to the expense!");
         ExpenseShare expenseShare = new ExpenseShare();
@@ -122,6 +126,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     @Transactional
+    @PreAuthorize("@authorizationService.isExpenseOwner(#expenseId)")
     public String removeUserFromExpense(UUID expenseId, UUID owerId) {
         Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new DataNotFoundException("Expense not found"));
         User ower = userRepository.findById(owerId).orElseThrow(() -> new DataNotFoundException("Ower not found"));
@@ -138,6 +143,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
+    @PreAuthorize("@authorizationService.isExpenseOwner(#expenseId)")
     public ExpenseDTO findExpenseById(UUID expenseId) {
         Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new DataNotFoundException("Expense not found"));
         ExpenseDTO expenseDTO = new ExpenseDTO();
@@ -153,6 +159,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
+    @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public List<ExpenseDTO> findAllExpense(UUID groupId) {
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found"));
         List<Expense> expenses = expenseRepository.findByGroupId(group.getId());

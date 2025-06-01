@@ -1,0 +1,30 @@
+databaseChangeLog:
+    - changeSet:
+          id: 2025-05-31-load-users
+          author: splitora
+          context: dev
+          changes:
+            - sql:
+                splitStatements: false
+                stripComments: true
+                sql: |
+                  INSERT IGNORE INTO user (
+                    id, created_by, created_on, modified_by, modified_on,
+                    username, email, phone_country_code, phone_number,
+                    password, registration_method, user_role
+                  ) VALUES
+                  (
+                    UNHEX('3719917506b14643afc7b8815fdc81cf'), NULL, '2025-05-26 13:24:27', NULL, '2025-05-26 13:24:27',
+                    'nakul_test_90', 'nakul@example.com', '+91', '0',
+                    '$2a$10$txo1PsQ7M.2uLv/HO.S0TuRHWJPvV8X2oO4gEh/QBNfTX8KIHEuma', 'NORMAL', 'USER'
+                  ),
+                  (
+                    UNHEX('5790c07ad90e4df6a062e6465f658127'), NULL, '2025-05-26 13:24:27', NULL, '2025-05-26 13:24:27',
+                    'superadmin', 'superadmin@example.com', '+91', '99',
+                    '$2a$10$ndZUrGTuqXw1buq9/MF34eM1XnrnFzwx9227xCGockloaFq.zPb8K', 'NORMAL', 'ADMIN'
+                  ),
+                  (
+                    UNHEX('784ad2e326344ba58c5028c8ee56bcd8'), NULL, '2025-05-26 13:24:27', NULL, '2025-05-26 13:24:27',
+                    'gaurav_test_22', 'gaurav@example.com', '+91', '1',
+                    '$2a$10$ILSK/k88Rd6SUbiMBHg/IOhuWGk3N5WqRDLz3gDL0.ne.6nANMeaG', 'NORMAL', 'USER'
+                  ) ;

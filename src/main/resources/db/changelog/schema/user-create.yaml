@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-user-table
+      author: splitora
+      changes:
+        - createTable:
+            tableName: user
+            columns:
+              - column:
+                  name: id
+                  type: BINARY(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: created_by
+                  type: BINARY(16)
+              - column:
+                  name: created_on
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: modified_by
+                  type: BINARY(16)
+              - column:
+                  name: modified_on
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: username
+                  type: VARCHAR(255)
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+              - column:
+                  name: phone_country_code
+                  type: VARCHAR(4)
+              - column:
+                  name: phone_number
+                  type: BIGINT
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+              - column:
+                  name: registration_method
+                  type: "ENUM('NORMAL','GOOGLE','MICROSOFT')"
+              - column:
+                  name: user_role
+                  type: "ENUM('USER','ADMIN','TESTER')"

@@ -1,6 +1,7 @@
 package com.satwik.splitora.persistence.entities;
 
 import com.satwik.splitora.constants.enums.RegistrationMethod;
+import com.satwik.splitora.constants.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "user")
+@Table(name = "user", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"phone_country_code", "phone_number"})
+})
 public class User extends BaseEntity {
 
     @Column(name = "username", unique = true)
@@ -31,8 +34,12 @@ public class User extends BaseEntity {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "registrationMethod")
+    @Column(name = "registration_method")
     private RegistrationMethod registrationMethod;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_role", nullable = false, length = 20)
+    private UserRole userRole;
 
     @OneToMany(mappedBy = "payer", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Expense> expenseList;

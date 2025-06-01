@@ -1,21 +1,22 @@
 package com.satwik.splitora.configuration.jwt;
 
-import com.satwik.splitora.exception.BadRequestException;
+import com.satwik.splitora.exception.AccessTokenInvalidException;
+import com.satwik.splitora.exception.RefreshTokenInvalidException;
 import com.satwik.splitora.persistence.entities.User;
 import io.jsonwebtoken.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class JwtUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
     // secret key for access token
     @Value("${jwt.access.secretKey}")
     private String ACCESS_SECRET_KEY;
@@ -31,42 +32,51 @@ public class JwtUtil {
 
     // generate access token method
     public String generateAccessToken(User user) {
-        Map <String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("role", "REGULAR_USER");
-        return buildToken(user, extraClaims, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXP_TIME);
+        return buildToken(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXP_TIME);
     }
 
-    public String buildToken(User user, Map<String, Object> extraClaims, String secretKey, Long expirationTime) {
-        Date issuedAt = new Date(System.currentTimeMillis());
-        extraClaims.put("userId", user.getId());
-        return Jwts.builder()
-                .setSubject(user.getEmail())
-                .setIssuedAt(issuedAt)
-                .addClaims(extraClaims)
-                .setIssuer("com.splitora.app")
-                .setExpiration(new Date((expirationTime * 60 * 1000) + issuedAt.getTime()))
-                .signWith(SignatureAlgorithm.HS512, secretKey)
-                .compact();
+    public String buildToken(User user, String secretKey, Long expirationTime) {
+        try {
+            Date issuedAt = new Date(System.currentTimeMillis());
+            Map<String, Object> extraClaims = new HashMap<>();
+            extraClaims.put("userId", user.getId());
+            extraClaims.put("role", user.getUserRole());
+            return Jwts.builder()
+                    .setSubject(user.getEmail())
+                    .setIssuedAt(issuedAt)
+                    .addClaims(extraClaims)
+                    .setIssuer("com.splitora.app")
+                    .setExpiration(new Date((expirationTime * 60 * 1000) + issuedAt.getTime()))
+                    .signWith(SignatureAlgorithm.HS512, secretKey)
+                    .compact();
+        } catch (Exception e) {
+            // Log the error message
+            log.info("Error while generating token: {}", e.getMessage());
+            throw new RuntimeException("Error while generating token: " + e.getMessage());
+        }
     }
 
     // generate refresh token method
     public String generateRefreshToken(User user) {
-        return buildToken(user, new HashMap<>(), REFRESH_SECRET_KEY, REFRESH_TOKEN_EXP_TIME);
+        return buildToken(user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXP_TIME);
     }
 
     // get claims
     private Claims getClaims(String token, String secretKey) {
             return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
     }
+
+    public String getUserId(String token) {
+        return getClaims(token, ACCESS_SECRET_KEY).get("userId").toString();
+    }
+
     public Claims getClaimsOfAccessToken(String accessToken) {
         try {
             return getClaims(accessToken, ACCESS_SECRET_KEY);
         }catch (ExpiredJwtException expiredJwtException) {
-            log.error("access token expired!");
-            throw new RuntimeException("Access token is expired! Use refresh token to get new refresh token");
+            throw new AccessTokenInvalidException("Access token is expired! Use refresh token to get new access token");
         }catch (SignatureException signatureException) {
-            log.error("invalid signature of access token");
-            throw new RuntimeException("Access token has invalid signature!");
+            throw new AccessTokenInvalidException("Access token has invalid signature!");
         }
     }
 
@@ -74,11 +84,9 @@ public class JwtUtil {
         try {
             return getClaims(refreshToken, REFRESH_SECRET_KEY);
         }catch (ExpiredJwtException expiredJwtException) {
-            log.error("refresh token expired! User have to log in again");
-            throw new BadRequestException("Refresh token is expired! Please log in again...");
+            throw new RefreshTokenInvalidException("Refresh token is expired! Please log in again...");
         }catch (SignatureException signatureException) {
-            log.error("invalid signature of refresh token");
-            throw new BadRequestException("Refresh token has invalid signature!");
+            throw new RefreshTokenInvalidException("Refresh token has invalid signature!");
         }
     }
 
@@ -99,10 +107,13 @@ public class JwtUtil {
     }
 
     // validate token itself
-    public boolean validateToken(String token, String userEmail) {
-        String tokenUserEmail = getUserEmail(token);
+    public boolean validateToken(String token, UserDetails userDetails) {
 
-        // check if userId matches to token userId and token is not expired
-        return (tokenUserEmail.equals(userEmail) && !isTokenExp(token));
+        String email = getUserEmail(token);
+        return email != null && email.equals(userDetails.getUsername()) && !isTokenExp(token);
+    }
+
+    public String getUserRole(String token) {
+        return getClaimsOfAccessToken(token).get("role").toString();
     }
 }

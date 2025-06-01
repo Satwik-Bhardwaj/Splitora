@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-groupmembers-table
+      author: splitora
+      changes:
+        - createTable:
+            tableName: group_members
+            columns:
+              - column:
+                  name: id
+                  type: BINARY(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: created_by
+                  type: BINARY(16)
+              - column:
+                  name: created_on
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: modified_by
+                  type: BINARY(16)
+              - column:
+                  name: modified_on
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: group_id
+                  type: BINARY(16)
+                  constraints:
+                    foreignKeyName: fk_groupmembers_group
+                    references: group_table(id)
+              - column:
+                  name: member_id
+                  type: BINARY(16)
+                  constraints:
+                    foreignKeyName: fk_groupmembers_member
+                    references: user(id)
