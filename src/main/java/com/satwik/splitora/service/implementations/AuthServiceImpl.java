@@ -9,21 +9,23 @@ import com.satwik.splitora.persistence.dto.user.RefreshTokenRequest;
 import com.satwik.splitora.persistence.entities.User;
 import com.satwik.splitora.repository.UserRepository;
 import com.satwik.splitora.service.interfaces.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    @Autowired
     JwtUtil jwtUtil;
 
-    @Autowired
     UserRepository userRepository;
 
-    @Autowired
     PasswordEncoder passwordEncoder;
+
+    public AuthServiceImpl(JwtUtil jwtUtil, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public AuthenticationResponse authenticateUser(LoginRequest loginRequest) {

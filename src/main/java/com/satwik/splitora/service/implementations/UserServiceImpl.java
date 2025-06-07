@@ -11,7 +11,6 @@ import com.satwik.splitora.repository.GroupRepository;
 import com.satwik.splitora.repository.UserRepository;
 import com.satwik.splitora.service.interfaces.UserService;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,17 +18,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private AuthorizationService authorizationService;
+    private final AuthorizationService authorizationService;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private GroupRepository groupRepository;
+    private final GroupRepository groupRepository;
 
-    @Autowired
-    private BCryptPasswordEncoder pwdEncoder;
+    private final BCryptPasswordEncoder pwdEncoder;
+
+    public UserServiceImpl(AuthorizationService authorizationService, UserRepository userRepository, GroupRepository groupRepository, BCryptPasswordEncoder pwdEncoder) {
+        this.authorizationService = authorizationService;
+        this.userRepository = userRepository;
+        this.groupRepository = groupRepository;
+        this.pwdEncoder = pwdEncoder;
+    }
 
     // for save and update
     @Override

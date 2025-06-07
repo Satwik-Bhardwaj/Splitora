@@ -24,11 +24,4 @@ public class UserDTO {
 
     @NotNull
     PhoneDTO phone;
-
-    UserDTO(UUID userId, String username, String email, String countryCode, Long phoneNumber) {
-        this.userId = userId;
-        this.username = username;
-        this.email = email;
-        this.phone = new PhoneDTO(countryCode, phoneNumber);
-    }
 }

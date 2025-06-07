@@ -5,7 +5,6 @@ import com.satwik.splitora.persistence.dto.expense.ExpenseDTO;
 import com.satwik.splitora.service.interfaces.ExpenseService;
 import com.satwik.splitora.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +17,11 @@ import java.util.UUID;
 @RequestMapping("/api/v1/expense")
 public class ExpenseController {
 
-    @Autowired
-    ExpenseService expenseService;
+    private final ExpenseService expenseService;
+
+    public ExpenseController (ExpenseService expenseService) {
+        this.expenseService = expenseService;
+    }
 
     /**
      * Creates a new expense which is not grouped.

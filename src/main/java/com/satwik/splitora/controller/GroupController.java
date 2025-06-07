@@ -1,6 +1,5 @@
 package com.satwik.splitora.controller;
 
-import com.satwik.splitora.configuration.security.LoggedInUser;
 import com.satwik.splitora.persistence.dto.ResponseModel;
 import com.satwik.splitora.persistence.dto.group.GroupDTO;
 import com.satwik.splitora.persistence.dto.group.GroupListDTO;
@@ -10,7 +9,6 @@ import com.satwik.splitora.service.interfaces.GroupService;
 import com.satwik.splitora.util.ResponseUtil;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,11 +21,11 @@ import java.util.UUID;
 @RequestMapping("/api/v1/group")
 public class GroupController {
 
-    @Autowired
-    GroupService groupService;
+    private final GroupService groupService;
 
-    @Autowired
-    LoggedInUser loggedInUser;
+    public GroupController (GroupService groupService) {
+        this.groupService = groupService;
+    }
 
     /**
      * Creates a group for a user.

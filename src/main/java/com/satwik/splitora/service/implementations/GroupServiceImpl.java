@@ -1,5 +1,6 @@
 package com.satwik.splitora.service.implementations;
 
+import com.satwik.splitora.constants.ErrorMessages;
 import com.satwik.splitora.exception.DataNotFoundException;
 import com.satwik.splitora.persistence.dto.expense.ExpenseListDTO;
 import com.satwik.splitora.persistence.dto.group.*;
@@ -15,7 +16,6 @@ import com.satwik.splitora.repository.GroupRepository;
 import com.satwik.splitora.repository.UserRepository;
 import com.satwik.splitora.service.interfaces.GroupService;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -25,20 +25,28 @@ import java.util.*;
 @Service
 public class GroupServiceImpl implements GroupService {
 
-    @Autowired
-    private AuthorizationService authorizationService;
+    private final AuthorizationService authorizationService;
 
-    @Autowired
-    private GroupRepository groupRepository;
+    private final GroupRepository groupRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private ExpenseRepository expenseRepository;
+    private final ExpenseRepository expenseRepository;
 
-    @Autowired
-    private GroupMembersRepository groupMembersRepository;
+    private final GroupMembersRepository groupMembersRepository;
+
+    public GroupServiceImpl (
+            AuthorizationService authorizationService,
+            GroupRepository groupRepository,
+            UserRepository userRepository,
+            ExpenseRepository expenseRepository,
+            GroupMembersRepository groupMembersRepository) {
+        this.authorizationService = authorizationService;
+        this.groupRepository = groupRepository;
+        this.userRepository = userRepository;
+        this.expenseRepository = expenseRepository;
+        this.groupMembersRepository = groupMembersRepository;
+    }
 
 
     @Override
@@ -73,7 +81,7 @@ public class GroupServiceImpl implements GroupService {
     @Transactional
     @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public String addGroupMembers(UUID groupId, UUID memberId) {
-        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found!"));
+        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException(ErrorMessages.GROUP_NOT_FOUND));
         User member = userRepository.findById(memberId).orElseThrow(() -> new DataNotFoundException("User not found to add as member!"));
         // TODO : add check to avoid add members to default group
         GroupMembers groupMembers = new GroupMembers();
@@ -86,7 +94,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public List<UserDTO> findMembers(UUID groupId) {
-        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found!"));
+        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException(ErrorMessages.GROUP_NOT_FOUND));
         List<GroupMembers> groupMembersList = groupMembersRepository.findByGroupId(group.getId());
         List<UserDTO> userDTOS = new ArrayList<>();
         for (GroupMembers groupMembers : groupMembersList) {
@@ -112,7 +120,7 @@ public class GroupServiceImpl implements GroupService {
     @Transactional
     @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public String deleteGroupByGroupId(UUID groupId) {
-        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found!"));
+        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException(ErrorMessages.GROUP_NOT_FOUND));
 
         if(!group.isDefaultGroup())
             groupRepository.deleteById(groupId);
@@ -125,7 +133,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public GroupDTO findGroupByGroupId(UUID groupId) {
-        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found!"));
+        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException(ErrorMessages.GROUP_NOT_FOUND));
         GroupDTO groupDTO = new GroupDTO();
         groupDTO.setGroupId(group.getId());
         groupDTO.setGroupName(group.getGroupName());
@@ -173,7 +181,7 @@ public class GroupServiceImpl implements GroupService {
     @Transactional
     @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public String updateGroup(GroupUpdateRequest groupUpdateRequest, UUID groupId) {
-        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found"));
+        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException(ErrorMessages.GROUP_NOT_FOUND));
         group.setGroupName(groupUpdateRequest.getGroupName());
         groupRepository.save(group);
         return "%s - Group update successfully!".formatted(group.getId());

@@ -8,7 +8,6 @@ import com.satwik.splitora.service.interfaces.UserService;
 import com.satwik.splitora.util.ResponseUtil;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,11 +17,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/user")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private LoggedInUser loggedInUser;
+    private final LoggedInUser loggedInUser;
+
+    public UserController (UserService userService, LoggedInUser loggedInUser) {
+        this.userService = userService;
+        this.loggedInUser = loggedInUser;
+    }
 
     /**
      * Registers a new user.
@@ -59,7 +61,7 @@ public class UserController {
      * @param updateUserRequest the request object containing updated user details.
      * @return a ResponseEntity containing a ResponseModel with the result of the update process.
      */
-    @PutMapping("update/{userId}")
+    @PutMapping("/update")
     public ResponseEntity<ResponseModel<String>> updateUser(@Valid @RequestBody RegisterUserRequest updateUserRequest) {
         log.info("Put Endpoint: update user with id: {}, and register user request: {}", loggedInUser.getUserId(), updateUserRequest);
         String response = userService.updateUser(updateUserRequest);
@@ -73,7 +75,7 @@ public class UserController {
      *
      * @return a ResponseEntity containing a ResponseModel with the result of the deletion process.
      */
-    @DeleteMapping("delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<ResponseModel<String>> deleteUser() {
         log.info("Delete Endpoint: delete user");
         String response = userService.deleteUser();
