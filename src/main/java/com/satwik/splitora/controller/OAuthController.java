@@ -5,7 +5,6 @@ import com.satwik.splitora.persistence.dto.user.AuthenticationResponse;
 import com.satwik.splitora.service.interfaces.OAuthService;
 import com.satwik.splitora.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +15,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/oauth2")
 public class OAuthController {
 
-    @Autowired
-    OAuthService oAuthService;
+    private final OAuthService oAuthService;
+
+    public OAuthController(OAuthService oAuthService) {
+        this.oAuthService = oAuthService;
+    }
 
     /**
      * Handles the OAuth2 callback.

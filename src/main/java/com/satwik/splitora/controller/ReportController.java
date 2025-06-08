@@ -19,11 +19,11 @@ import java.util.UUID;
 @RequestMapping("/api/v1/report")
 public class ReportController {
 
-    @Autowired
     ReportService reportService;
 
-    @Autowired
-    LoggedInUser loggedInUser;
+    public ReportController (ReportService reportService) {
+        this.reportService = reportService;
+    }
 
     /**
      * Generates a report for a specific group.

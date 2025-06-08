@@ -7,7 +7,9 @@ import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
-public class ResponseUtil {
+public final class ResponseUtil {
+
+    private ResponseUtil() {}
 
     public static <T> ResponseModel<T> success(T data, HttpStatus status, String message) {
         return ResponseModel.<T>builder()

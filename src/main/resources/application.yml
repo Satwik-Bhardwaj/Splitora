@@ -10,6 +10,7 @@ spring:
         hibernate:
             ddl-auto: none
             naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        open-in-view: false
 
     liquibase:
         enabled: true

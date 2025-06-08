@@ -1,19 +1,14 @@
 package com.satwik.splitora.controller;
 
-import com.satwik.splitora.configuration.jwt.JwtUtil;
 import com.satwik.splitora.persistence.dto.ResponseModel;
 import com.satwik.splitora.persistence.dto.user.AuthenticationResponse;
 import com.satwik.splitora.persistence.dto.user.LoginRequest;
 import com.satwik.splitora.persistence.dto.user.RefreshTokenRequest;
-import com.satwik.splitora.repository.UserRepository;
 import com.satwik.splitora.service.interfaces.AuthService;
 import com.satwik.splitora.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -22,20 +17,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthService authService;
 
-    @Autowired
-    private AuthService authService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtUtil jwtUtil;
+    public AuthController(
+            AuthService authService) {
+        this.authService = authService;
+    }
 
     /**
      * Handles the login request for a user.

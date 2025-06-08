@@ -1,5 +1,6 @@
 package com.satwik.splitora.service.implementations;
 
+import com.satwik.splitora.constants.ErrorMessages;
 import com.satwik.splitora.exception.DataNotFoundException;
 import com.satwik.splitora.persistence.dto.report.ReportDTO;
 import com.satwik.splitora.persistence.dto.report.TempReport;
@@ -7,13 +8,11 @@ import com.satwik.splitora.persistence.entities.Group;
 import com.satwik.splitora.persistence.entities.User;
 import com.satwik.splitora.repository.ExpenseShareRepository;
 import com.satwik.splitora.repository.GroupRepository;
-import com.satwik.splitora.repository.UserRepository;
 import com.satwik.splitora.service.interfaces.ReportService;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,26 +27,28 @@ import java.util.UUID;
 @Service
 public class ReportServiceImpl implements ReportService {
 
-    @Autowired
-    private AuthorizationService authorizationService;
+    private final AuthorizationService authorizationService;
 
-    @Autowired
-    private GroupRepository groupRepository;
+    private final GroupRepository groupRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final ExpenseShareRepository expenseShareRepository;
 
-    @Autowired
-    private ExpenseShareRepository expenseShareRepository;
+    public ReportServiceImpl(AuthorizationService authorizationService,
+                             GroupRepository groupRepository,
+                             ExpenseShareRepository expenseShareRepository) {
+        this.authorizationService = authorizationService;
+        this.groupRepository = groupRepository;
+        this.expenseShareRepository = expenseShareRepository;
+    }
 
     @Value("${my.reportFilePath}")
-    private String REPORT_FILE_PATH;
+    private String reportFilePath;
 
     @Override
     @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public List<ReportDTO> generateReport(UUID groupId) {
 
-        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found"));
+        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException(ErrorMessages.GROUP_NOT_FOUND));
         // preparing report
         List<TempReport> tempReportList = groupRepository.generateReportById(group.getId());
         List<ReportDTO> reportDTOS = new ArrayList<>();
@@ -72,7 +73,7 @@ public class ReportServiceImpl implements ReportService {
     @PreAuthorize("@authorizationService.isGroupOwner(#groupId)")
     public String exportReport(UUID groupId, String fileType) {
         User user = authorizationService.getAuthorizedUser();
-        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException("Group not found"));
+        Group group = groupRepository.findById(groupId).orElseThrow(() -> new DataNotFoundException(ErrorMessages.GROUP_NOT_FOUND));
 
         if(user == null || user.getId() != group.getUser().getId()) throw new AccessDeniedException("Access Denied");
 
@@ -83,7 +84,7 @@ public class ReportServiceImpl implements ReportService {
         else
             throw new RuntimeException("Invalid file type");
 
-        return "File successfully created at path - " + REPORT_FILE_PATH;
+        return "File successfully created at path - " + reportFilePath;
     }
 
     private void exportToCSV(UUID groupId) {
@@ -104,7 +105,7 @@ public class ReportServiceImpl implements ReportService {
             reportDTOS.add(reportDTO);
         }
 
-        try (FileOutputStream fos = new FileOutputStream(REPORT_FILE_PATH + "data.csv")) {
+        try (FileOutputStream fos = new FileOutputStream(reportFilePath + "data.csv")) {
             StringBuilder csvData = new StringBuilder();
             csvData.append("groupName,expenseName,expenseOwner,expenseContributors,totalExpenseAmount\n");
             for (ReportDTO reportDTO : reportDTOS) {
@@ -138,7 +139,7 @@ public class ReportServiceImpl implements ReportService {
             reportDTOS.add(reportDTO);
         }
 
-        try (FileOutputStream outputStream = new FileOutputStream(REPORT_FILE_PATH + "data.xlsx")) {
+        try (FileOutputStream outputStream = new FileOutputStream(reportFilePath + "data.xlsx")) {
 
             Workbook workbook = new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("Data");
